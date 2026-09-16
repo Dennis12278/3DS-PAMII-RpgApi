@@ -9,7 +9,7 @@ namespace AppRpgEtec.Services.Personagens
     public class PersonagemService : Request
     {
         private readonly Request _request;
-        private const string apiUrlBase = "https://xyz.azurewebsites.net/Personagens";
+        private const string apiUrlBase = "https://rpgapi3ds2026-2-fsf6e4d0b2hjh7bc.mexicocentral-01.azurewebsites.net/Personagens";
         //xyz --> site da sua API
 
         private string _token;

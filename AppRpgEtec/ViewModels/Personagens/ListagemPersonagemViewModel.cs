@@ -14,6 +14,26 @@ namespace AppRpgEtec.ViewModels.Personagens
 
         public ObservableCollection<Personagem> Personagens { get; set; }
 
+        private Personagem personagemSelecionado;
+
+        public Personagem PersonagemSelecionado
+        {
+            get
+            {
+                return personagemSelecionado;
+            }
+            set
+            {
+                if (value != null)
+                {
+                    personagemSelecionado = value;
+
+                    Shell.Current
+                        .GoToAsync($"cadPersonagemView?pId={personagemSelecionado.Id}");
+                }
+            }
+        }
+
         public ObservableCollection<TipoClasse> ListaTiposClasse { get; set; }
 
         public ListagemPersonagemViewModel()
@@ -30,9 +50,13 @@ namespace AppRpgEtec.ViewModels.Personagens
 
             _ = ObterClasses();
 
-            NovoPersonagem = new Command(async () => { await ExibirCadastroPersonagem(); });
+            NovoPersonagemCommand = new Command(async () => { await ExibirCadastroPersonagem(); });
+            RemoverPersonagemCommand = new Command<Personagem>(async (Personagem p ) => { await RemoverPersonagem(p); });
+
         }
-        public ICommand NovoPersonagem { get; }
+        public ICommand NovoPersonagemCommand { get; }
+
+        public ICommand RemoverPersonagemCommand { get; set; }
 
         public async Task ObterPersonagens()
         {
@@ -44,8 +68,7 @@ namespace AppRpgEtec.ViewModels.Personagens
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage
-                    .DisplayAlert( "Ops",ex.Message + " Detalhes: " + ex.InnerException,"Ok" );
+                await Application.Current.MainPage.DisplayAlert( "Ops",ex.Message + " Detalhes: " + ex.InnerException,"Ok" );
             }
         }
 
@@ -61,8 +84,7 @@ namespace AppRpgEtec.ViewModels.Personagens
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage
-                    .DisplayAlert("Ops",ex.Message + " Detalhes: " + ex.InnerException, "Ok");
+                await Application.Current.MainPage.DisplayAlert("Ops",ex.Message + " Detalhes: " + ex.InnerException, "Ok");
             }
         }
         public async Task ExibirCadastroPersonagem()
@@ -73,8 +95,27 @@ namespace AppRpgEtec.ViewModels.Personagens
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage
-                    .DisplayAlert("Ops", ex.Message  + " Detalhes: " + ex.InnerException, "Ok");
+                await Application.Current.MainPage.DisplayAlert("Ops", ex.Message  + " Detalhes: " + ex.InnerException, "Ok");
+            }
+        }
+        public async Task RemoverPersonagem(Personagem p)
+        {
+            try
+            {
+                if (await Application.Current.MainPage
+                     .DisplayAlert("Confirmação", $"Confirma a remoção de {p.Nome}?", "Sim", "Não"))
+                {
+
+                    await pService.DeletePersonagemAsync(p.Id);
+
+                    await Application.Current.MainPage.DisplayAlert("Mensagem", "Personagem removido com sucesso!", "Ok");
+
+                    await ObterPersonagens();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert("Ops", ex.Message + " Detalhes: " + ex.InnerException, "Ok");
             }
         }
     }
